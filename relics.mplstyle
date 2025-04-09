@@ -1,0 +1,29 @@
+figure.dpi : 100
+savefig.dpi : 300
+
+font.size : 20
+legend.fontsize : 15
+legend.title_fontsize : 15
+errorbar.capsize : 2
+
+axes.titlesize : 20
+axes.linewidth : 1
+axes.labelsize : 20
+axes.unicode_minus : False
+
+lines.linewidth : 2.0
+lines.markersize : 9
+
+xtick.labelsize : 20
+ytick.labelsize : 20
+xtick.major.size : 8
+xtick.minor.size : 4
+ytick.major.size : 8
+ytick.minor.size : 4
+xtick.major.width : 1.5
+xtick.minor.width : 1.5
+ytick.major.width : 1.5
+ytick.minor.width : 1.5
+
+text.usetex : True
+text.latex.preamble : \usepackage[detect-all,locale=DE]{siunitx}
