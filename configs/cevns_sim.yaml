@@ -1,0 +1,10 @@
+# Full CEvNS event simulation across electron multiplicities (3..10 e-).
+# Mirrors the CEvNS_3-10.yaml legacy config.
+extends: _base.yaml
+
+simulation:
+  dead_time_s: 0.020
+
+paths:
+  output_dir: ../outputs/cevns_sim/
+  cevns_e_spectrum: ../data/cevns_sim_20_3e.npz

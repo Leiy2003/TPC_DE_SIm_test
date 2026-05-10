@@ -1,0 +1,41 @@
+output_pattern: "../result/test/"
+
+dead_time: 0.02
+
+LCE_value: '../file_to_load/LCE_value.npy'
+
+LCE_value_true: '../file_to_load/LCE_value.npy'
+
+LCE_xs: '../file_to_load/LCE_xs.npy'
+
+LCE_ys: '../file_to_load/LCE_ys.npy'
+
+muon_rate: 10.25
+
+quenching_factor: 50 #muon沉积1keV能量电子产额
+
+gap: 1500e-9
+
+average_efficiency: 0.3216485765310615 # 光模拟各位置S2 pattern的平均光采集效率
+
+single_electron_gain: 30 #单电子平均pe数
+
+pe_gain: 6e6
+
+pe_gain_std: 2.4e6
+
+cevns_e_spectrum: 'data/cevns_sim_20_3e.npz'
+
+position_reconstruction_model: 'sim_config/CnnRelics.ckpt'
+
+diffuse_length: 20
+
+save_muon_track: False
+
+sim_up_limit: 300
+
+sim_low_limit: 90
+
+roi_up_limit: 300
+
+roi_low_limit: 120

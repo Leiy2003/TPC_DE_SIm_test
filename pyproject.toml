@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "relics-de-sim"
+version = "0.2.0"
+description = "Delayed-electron and S2-pattern simulation for the RELICS detector."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "RELICS collaboration" }]
+keywords = ["RELICS", "dark matter", "CEvNS", "delayed electrons", "TPC", "S2"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+    "numpy>=1.22",
+    "scipy>=1.8",
+    "matplotlib>=3.5",
+    "pyyaml>=6.0",
+    "tqdm>=4.60",
+    "scikit-learn>=1.1",
+    "torch>=1.12",
+    "numba>=0.56",
+]
+
+[project.optional-dependencies]
+notebook = ["jupyter", "ipywidgets"]
+dev = ["pytest>=7.0", "pytest-cov", "ruff"]
+
+[project.scripts]
+relics-de-sim = "relics_de_sim.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["relics_de_sim*"]
+exclude = ["archive*", "notebooks*", "outputs*", "scripts*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B"]
+ignore = ["E501"]

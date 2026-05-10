@@ -1,0 +1,213 @@
+# relics-de-sim
+
+Delayed-electron (DE) and S2-pattern simulation for the **RELICS** dual-phase
+xenon TPC. The package generates muon signals, the resulting delayed
+electrons, the corresponding S2 PMT patterns, and runs the full
+identification chain (CNN position reconstruction + pattern likelihood +
+space-time correlation cut + waveform classifier) used to separate single-
+muon backgrounds from CEvNS-like single/multiple-electron events.
+
+A more detailed physics walk-through lives in
+[`docs/DE_simulation_overview.pdf`](docs/DE_simulation_overview.pdf).
+
+## Physics flow
+
+```
+muon_track/*.npy
+        │
+        ▼
+┌───────────────────┐
+│  muon module      │  load_muon_files → dense_muon_points (100 interp/muon)
+└─────────┬─────────┘
+          │
+          ▼
+┌──────────────────────────────────┐
+│  delayed_electron + pileup       │  power-law dt, 2-D Gaussian xy
+│                                   │  group n=2..7 consecutive electrons
+└──────────────────────────────────┘
+          │
+          ▼
+┌──────────────────────────────────┐
+│  pattern simulator (LCE × Gamma  │
+│  × Poisson × per-pe gain)        │  light, pe, area, recons-light patterns
+└──────────────────────────────────┘
+          │
+          ▼
+┌────────────────────┐    ┌──────────────────────┐
+│  CNN position recon│    │ space-time correlation│
+└─────────┬──────────┘    └──────────┬────────────┘
+          │                          │
+          ▼                          ▼
+              pattern likelihood  +  log(st_cor)
+                            │
+                            ▼
+                  area-dependent 2-D linear cut
+                            │
+                            ▼
+                S2 waveform synthesis + CNN classifier
+```
+
+## Repository layout
+
+```
+relics-de-sim/
+├── README.md
+├── docs/                        physics overview + module reference
+├── configs/                     curated YAMLs (extends-based inheritance)
+├── relics_de_sim/               core package (importable as a normal pip package)
+├── scripts/                     CLI entry points + a generic batch submitter
+├── notebooks/                   7 first-class notebooks (01..06 + illustrations)
+├── data/                        small reference npz (CEvNS spectrum, etc.)
+├── models/                      ML checkpoints (CNN position recon, waveform classifier)
+├── cut_config/                  fitted area-dependent cut coefficients
+├── outputs/                     gitignored output target
+└── archive/                     legacy code preserved for traceability
+```
+
+## Installation
+
+```bash
+git clone <this repo>
+cd relics-de-sim
+pip install -e .                 # core package, uses requirements.txt
+pip install -e .[notebook]       # add jupyter + ipywidgets
+```
+
+The package needs Python ≥ 3.8. The CNN-based modules (`recon`, `waveform.WaveformClassifier`) require PyTorch; everything else runs on a pure NumPy / SciPy stack so the simulation chain can be tested on machines without a GPU.
+
+## External-data layout
+
+The four large input families are referenced from `configs/_base.yaml`. By
+default they live alongside the repo:
+
+| Field (in `paths`) | Default location | Provider |
+|---|---|---|
+| `pmt_top` / `pmt_bot`     | `LCE_info/topPMTs.txt`, `botPMTs.txt`   | RELICS detector geometry |
+| `lce_value` / `lce_xs` / `lce_ys` | `LCE_info/LCE_value.npy`, ...   | optical simulation |
+| `muon_track_dir`          | `muon_track/muon_track.<i>.npy`         | Geant4 muon export |
+| `cevns_e_spectrum`        | `data/e_spectrum_relics.npz`            | CEvNS theory model |
+| `position_reconstruction_model` | `models/CnnRelics.ckpt`           | trained CNN |
+| `waveform_classifier_model` | `models/waveform_classifier.pth`      | trained CNN |
+
+Override any of those paths in your run-specific YAML. Paths are resolved
+relative to the YAML file’s directory.
+
+## Configuration
+
+```yaml
+# configs/de_sim.yaml
+extends: _base.yaml
+
+simulation:
+  dead_time_s: 0.002
+  pile_up_orders: [2, 3, 4, 5, 6, 7]
+
+paths:
+  output_dir: ../outputs/de_sim/
+```
+
+`extends` cascades arbitrarily deep; use it to keep run-specific configs
+short. Validation is performed at construction time:
+
+```python
+from relics_de_sim import DESimConfig
+cfg = DESimConfig.from_yaml("configs/de_sim.yaml")
+print(cfg.simulation.dead_time_s)          # 0.002
+print(cfg.electronics.single_electron_gain_per_channel)
+```
+
+Every legacy flat-keyed YAML (`sim_config/DE_2ms.yaml`, etc.) loads
+unchanged; the legacy keys are mapped onto the new nested layout.
+
+## Quickstart
+
+```bash
+# 1. DE pile-up simulation, batch 0 (10 muon files, ~10⁵ DE survivors)
+python scripts/run_de_sim.py --config configs/de_sim.yaml --batch-index 0
+
+# 2. CEvNS event simulation
+python scripts/run_cevns_sim.py --config configs/cevns_sim.yaml --batch-index 0
+
+# 3. Fit the area-dependent (pattern, log st_cor) cut on the DE outputs
+python scripts/fit_cuts.py --inputs outputs/de_sim/batch_*/de_result.npz
+
+# 4. CEvNS acceptance scan (loads the cut produced in step 3)
+python scripts/run_acceptance.py --config configs/acceptance.yaml --batch-index 0
+
+# 5. Per-N S2 waveform generation (replaces the per-multiplicity scripts)
+python scripts/run_waveform_gen.py --config configs/cevns_sim.yaml \
+       --n-electrons 5 --batch-index 0
+
+# Batch submission (runs N batches in parallel; replaces all *.sh launchers).
+scripts/submit_array.sh de configs/de_sim.yaml \
+       --start 0 --n-batches 200 --workers 16
+```
+
+Each script writes:
+
+* `<out>/de_result.npz` — DE pile-up arrays (per multiplicity).
+* `<out>/cevns_result.npz` — surviving CEvNS arrays.
+* `<out>/meta.json` — full config dump + git SHA.
+* `<out>/waveforms_e<N>.npz` (waveform script).
+
+See `docs/architecture.md` for the field-level data schema.
+
+## Notebooks
+
+Seven curated notebooks live under `notebooks/`. They are regenerated by
+`notebooks/_build_notebooks.py` so the notebook layer stays in sync with the
+package.
+
+| Notebook | Topic | Replaces |
+|---|---|---|
+| `01_muon_signal.ipynb` | Muon S2 characterisation | `Muon_signal_sim.ipynb` |
+| `02_de_simulation.ipynb` | Canonical DE walk-through | `DEMO.ipynb`, `Run_test.ipynb` |
+| `03_cevns_simulation.ipynb` | CEvNS event simulation | `CEvNS_Sim.ipynb`, `Data_load_reshape.ipynb` |
+| `04_pattern_st_cor_cut.ipynb` | 2-D pattern × ST cut fit | `3D-cut.ipynb`, `3D-cut_multi_process.ipynb` |
+| `05_waveform_classifier.ipynb` | Per-N waveform synthesis + CNN classifier | `2e.ipynb` … `7e.ipynb` |
+| `06_acceptance_study.ipynb` | CEvNS acceptance | `Acceptance_analyst.ipynb` |
+| `illustrations.ipynb` | Pedagogy / GIFs | `Illustration_pattern.ipynb`, `Illustration_waveform.ipynb`, `Ilustration.ipynb` |
+
+## Reproducing the published cut + acceptance figure
+
+```bash
+# Generate enough DE statistics to fit the cut (~5x10^7 DEs):
+scripts/submit_array.sh de configs/de_sim.yaml \
+        --start 0 --n-batches 200 --workers 32 --files-per-batch 10
+
+# Fit and persist the cut:
+python scripts/fit_cuts.py --inputs outputs/de_sim/batch_*/de_result.npz \
+        --k-st-out cut_config/k_st_coefficients.npz \
+        --b-out cut_config/b_coefficients.npz
+
+# Generate CEvNS acceptance batches:
+scripts/submit_array.sh acceptance configs/acceptance.yaml \
+        --start 0 --n-batches 100 --workers 32
+
+# Plot the acceptance figure:
+jupyter notebook notebooks/06_acceptance_study.ipynb
+```
+
+## Out of scope
+
+* The CNN architecture itself (preserved verbatim in `relics_de_sim/recon.py`).
+* The 2-D linear cut form (`pattern - (k_a*area + k_b)*st_cor > b_a*area + b_b`).
+* External data files. Only the path conventions changed; the actual LCE
+  maps / muon archives / CNN checkpoints are unchanged.
+
+## Contributing / development
+
+```bash
+pip install -e .[dev]
+ruff check relics_de_sim
+python scripts/smoke_test.py     # synthetic-data end-to-end check
+```
+
+The smoke test exercises every stage of the pipeline that does not require
+PyTorch and runs in under a second; it is the recommended CI gate.
+
+## Acknowledgements
+
+This package consolidates and refactors the original DE simulation work by
+the RELICS collaboration. See `archive/NOTE.md` for the mapping from the
+legacy files to the new modules.
