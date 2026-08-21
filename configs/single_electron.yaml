@@ -1,0 +1,13 @@
+# Single-electron study: every "event" carries exactly one ionisation electron.
+# Mirrors Single_Electron.yaml.
+extends: _base.yaml
+
+simulation:
+  dead_time_s: 0.0020
+  sim_low_limit_pe: 0.0
+  sim_up_limit_pe: 300.0
+  roi_low_limit_pe: 0.0
+  roi_up_limit_pe: 300.0
+
+paths:
+  output_dir: ../outputs/single_electron/

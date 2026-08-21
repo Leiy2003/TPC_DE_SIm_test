@@ -1,0 +1,2 @@
+[console_scripts]
+relics-de-sim = relics_de_sim.__main__:main

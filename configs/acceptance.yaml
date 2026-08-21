@@ -1,0 +1,11 @@
+# CEvNS acceptance scan: simulate many CEvNS events across the ROI,
+# pass them through the pattern + ST cuts and synthesise S2 waveforms.
+# Mirrors CEvNS_acceptance.yaml.
+extends: _base.yaml
+
+simulation:
+  dead_time_s: 0.0020
+
+paths:
+  output_dir: ../outputs/acceptance/
+  cevns_e_spectrum: ../data/e_spectrum_relics.npz

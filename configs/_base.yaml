@@ -1,0 +1,54 @@
+# Shared detector + electronics + path defaults.
+# Every other config in this directory inherits from this one via `extends: _base.yaml`.
+# Override only the fields that genuinely differ between studies.
+
+detector:
+  radius_mm: 82.5          # active TPC inner radius
+  height_mm: 156.0          # drift-gap height
+  fiducial_radius_mm: 82.5 # event-position sampling radius (CEvNS / SE)
+  drift_velocity_mm_per_s: 174000.0  # 0.174 mm/us in mm/s
+  longitudinal_diffusion: 12.0
+  quenching_factor: 50.0    # mean ionisation electrons per keV deposited
+
+electronics:
+  average_efficiency: 0.2273  # mean LCE over the top PMT array
+  single_electron_pe: 30.0                 # mean pe / single electron
+  pe_gain: 1                           # mean per-pe area
+  pe_gain_std: 0.4                       # std-dev of per-pe area
+  se_gamma_sigma: 0.265                    # multiplicative jitter on the SE pattern
+  sigma_se_s: 1.9e-7                       # 190 ns
+  sample_dt_s: 4.0e-9                      # 4 ns sampling period
+  waveform_length: 3500                    # samples per synthesised waveform
+
+simulation:
+  muon_rate_hz: 7  #input event rate (Muon + Gamma) in Hz
+  dead_time_s: 0.0200
+  pile_up_gap_s: 1.5e-6
+  diffuse_length_mm: 20.0
+  interp_points_per_muon: 100
+  correlation_radius_mm: 20.0
+  correlation_gamma: 3.0
+  correlation_look_ahead: 20
+  sim_low_limit_pe: 30.0
+  sim_up_limit_pe: 300.0
+  roi_low_limit_pe: 60.0
+  roi_up_limit_pe: 300.0
+  pile_up_orders: [2, 3, 4, 5, 6, 7]
+  save_muon_track: false
+
+cuts:
+  k_st_coefficients_path: /home/leiyang/TPC_DE_SIm-test/cut_config/k_st_coefficients.npz #../cut_config/k_st_coefficients.npz
+  b_coefficients_path: /home/leiyang/TPC_DE_SIm-test/cut_config/b_coefficients.npz #../cut_config/b_coefficients.npz
+
+paths:
+  output_dir: ../outputs/
+  pmt_top: ../LCE_info/topPMTs.txt
+  pmt_bot: ../LCE_info/botPMTs.txt
+  lce_value: ../LCE_info/LCE_value.npy
+  lce_value_true: ../LCE_info/LCE_value.npy
+  lce_xs: ../LCE_info/LCE_xs.npy
+  lce_ys: ../LCE_info/LCE_ys.npy
+  muon_track_dir: ../muon_track/ #muon_track_processed/
+  cevns_e_spectrum: ../data/e_spectrum_relics.npz
+  position_reconstruction_model: ../models/CnnRelics.ckpt
+  waveform_classifier_model: ../models/waveform_classifier.pth

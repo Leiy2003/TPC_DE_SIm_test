@@ -1,0 +1,9 @@
+# Muon S2 / waveform characterisation; no DE / CEvNS generation.
+# Mirrors Muon_sim.yaml.
+extends: _base.yaml
+
+simulation:
+  dead_time_s: 0.0020
+
+paths:
+  output_dir: ../outputs/muon_only/

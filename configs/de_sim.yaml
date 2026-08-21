@@ -1,0 +1,10 @@
+# Full delayed-electron pile-up simulation.
+# Mirrors the DE_param_30.yaml + DE_2ms.yaml legacy configs.
+extends: _base.yaml
+
+simulation:
+  dead_time_s: 0.002         # 2-ms dead time, matching DE_2ms.yaml
+  pile_up_orders: [2, 3, 4, 5, 6, 7]
+
+paths:
+  output_dir: ../outputs/de_sim/

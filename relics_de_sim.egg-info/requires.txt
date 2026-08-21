@@ -1,0 +1,17 @@
+numpy>=1.22
+scipy>=1.8
+matplotlib>=3.5
+pyyaml>=6.0
+tqdm>=4.60
+scikit-learn>=1.1
+torch>=1.12
+numba>=0.56
+
+[dev]
+pytest>=7.0
+pytest-cov
+ruff
+
+[notebook]
+jupyter
+ipywidgets

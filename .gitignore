@@ -1,0 +1,26 @@
+# Python缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter检查点
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# 数据文件
+*.root
+*.h5
+*.npy
+
+# 日志
+*.log
+run.log
+
+# 输出目录
+event_data/
+muon_track/
+
+# 备份
+*~
+*.bak
