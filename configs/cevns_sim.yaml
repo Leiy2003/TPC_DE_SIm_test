@@ -3,7 +3,7 @@
 extends: _base.yaml
 
 simulation:
-  dead_time_s: 0.0020
+  dead_time_s: 0.020
 
 paths:
   output_dir: ../outputs/cevns_sim/

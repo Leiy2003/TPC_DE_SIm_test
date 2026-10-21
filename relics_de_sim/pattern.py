@@ -120,9 +120,9 @@ class PatternSimulator:
         Includes the multiplicative SE-gain jitter (``Gaussian(1, gamma_sigma)``).
         Negative samples (rare, low-tail) are clipped to 0.
         """
-        light = self.lce.light_pattern(xy)
+        lce_result = self.lce.light_pattern(xy)
         gamma = self.rng.normal(1.0, self.se_gamma_sigma, size=len(xy))
-        light = light * self.single_electron_gain_per_channel * gamma[:, None]
+        light = lce_result * self.single_electron_gain_per_channel * gamma[:, None]
         np.clip(light, 0.0, None, out=light)
         return light
 

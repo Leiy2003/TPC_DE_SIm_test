@@ -11,7 +11,7 @@ detector:
   quenching_factor: 50.0    # mean ionisation electrons per keV deposited
 
 electronics:
-  average_efficiency: 0.2273  # mean LCE over the top PMT array
+  average_efficiency: 0.4804460947188123  # mean LCE over the top PMT array
   single_electron_pe: 30.0                 # mean pe / single electron
   pe_gain: 1                           # mean per-pe area
   pe_gain_std: 0.4                       # std-dev of per-pe area
@@ -21,7 +21,7 @@ electronics:
   waveform_length: 3500                    # samples per synthesised waveform
 
 simulation:
-  muon_rate_hz: 7  #input event rate (Muon + Gamma) in Hz
+  muon_rate_hz: 6  #input event rate (Muon + Gamma) in Hz
   dead_time_s: 0.0200
   pile_up_gap_s: 1.5e-6
   diffuse_length_mm: 20.0
@@ -31,7 +31,7 @@ simulation:
   correlation_look_ahead: 20
   sim_low_limit_pe: 30.0
   sim_up_limit_pe: 300.0
-  roi_low_limit_pe: 60.0
+  roi_low_limit_pe: 90.0
   roi_up_limit_pe: 300.0
   pile_up_orders: [2, 3, 4, 5, 6, 7]
   save_muon_track: false

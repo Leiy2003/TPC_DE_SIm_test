@@ -20,6 +20,10 @@ run.log
 # 输出目录
 event_data/
 muon_track/
+output/
+
+# 脚本日志
+scripts/nohup.out
 
 # 备份
 *~

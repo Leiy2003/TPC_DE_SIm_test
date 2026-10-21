@@ -3,10 +3,10 @@
 extends: _base.yaml
 
 simulation:
-  dead_time_s: 0.0020
-  sim_low_limit_pe: 0.0
+  dead_time_s: 0.020
+  sim_low_limit_pe: 30
   sim_up_limit_pe: 300.0
-  roi_low_limit_pe: 0.0
+  roi_low_limit_pe: 90
   roi_up_limit_pe: 300.0
 
 paths:
